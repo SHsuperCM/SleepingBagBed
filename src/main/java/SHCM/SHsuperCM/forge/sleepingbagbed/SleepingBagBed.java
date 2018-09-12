@@ -64,6 +64,7 @@ public class SleepingBagBed {
         }
     }
 
+    @SideOnly(Side.CLIENT)
     private static boolean renderingPlayer = false;
 
     @SideOnly(Side.CLIENT)
