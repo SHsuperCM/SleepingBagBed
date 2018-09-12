@@ -11,21 +11,21 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Arrays;
+
 @Mod.EventBusSubscriber
 public class BedEvents {
 
     @SubscribeEvent
     public static void interact(PlayerInteractEvent event) {
-        if(!event.getWorld().isRemote && !event.getEntityPlayer().isSneaking() && event.getItemStack().getItem() == Items.BED) {
+        if(!event.getWorld().isRemote && !event.getEntityPlayer().isSneaking() && isBed(event.getItemStack())) {
             event.setCanceled(true);
 
             EntityPlayer player = event.getEntityPlayer();
 
 
             if(!player.world.isDaytime() && player.world.provider.isSurfaceWorld()) {
-                //player.world.setBlockState(player.getPosition(), Blocks.BED.getDefaultState());
                 player.trySleep(player.getPosition());
-                //TODO change NBT of bed item to reflect person being asleep, Make sure to get rid of the tag
                 event.setCancellationResult(EnumActionResult.SUCCESS);
             }
 
@@ -35,11 +35,11 @@ public class BedEvents {
 
     @SubscribeEvent
     public static void handleSleepLocationCheck(SleepingLocationCheckEvent event) {
-        if(event.getEntityPlayer().getHeldItemMainhand())
-        event.setResult(Event.Result.ALLOW);
+        if(isBed(event.getEntityPlayer().getHeldItemMainhand()))
+            event.setResult(Event.Result.ALLOW);
     }
 
     private static boolean isBed(ItemStack item) {
-        return 
+        return ModConfig.bag_items.length != 0 && !item.isEmpty() && Arrays.asList(ModConfig.bag_items).contains(item.getItem().getRegistryName().toString());
     }
 }
