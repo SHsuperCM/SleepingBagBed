@@ -1,9 +1,11 @@
 package SHCM.SHsuperCM.forge.sleepingbagbed;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -11,7 +13,10 @@ import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Arrays;
 
@@ -22,7 +27,7 @@ public class SleepingBagBed {
 
     @SubscribeEvent
     public static void interact(PlayerInteractEvent.RightClickBlock event) {
-        if(!event.getWorld().isRemote && !event.getEntityPlayer().isSneaking() && event.getEntityPlayer().onGround && isBed(event.getItemStack())) {
+        if(!event.getWorld().isRemote && !event.getEntityPlayer().isSneaking() && event.getEntityPlayer().onGround && isBed(event.getEntityPlayer().getHeldItemMainhand())) {
             event.setCanceled(true);
 
             EntityPlayer player = event.getEntityPlayer();
@@ -49,11 +54,30 @@ public class SleepingBagBed {
     }
 
 
-    @SubscribeEvent
-    public static void configChange(ConfigChangedEvent event) {
-        if(event.getModID().equals(MODID))
-            ConfigManager.sync(MODID, Config.Type.INSTANCE);
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onRender(RenderPlayerEvent.Pre event) {
+        if (event.getEntityPlayer().isPlayerSleeping() && isBed(event.getEntityPlayer().getHeldItemMainhand())) {
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(0.8F, -0.6F, 0F);
+            renderingPlayer = true;
+        }
     }
+
+    private static boolean renderingPlayer = false;
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRender(RenderPlayerEvent.Post event) {
+        if (renderingPlayer) {
+            GlStateManager.popMatrix();
+            renderingPlayer = false;
+        }
+    }
+
+
+    @SubscribeEvent
+    public static void configChange(ConfigChangedEvent event) { if(event.getModID().equals(MODID)) ConfigManager.sync(MODID, Config.Type.INSTANCE); }
     @Config(modid = MODID)
     public static class ModConfig {
         @Config.Name("Bag Items")
