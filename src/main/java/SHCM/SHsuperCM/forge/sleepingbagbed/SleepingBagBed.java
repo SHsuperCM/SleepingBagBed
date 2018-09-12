@@ -3,6 +3,7 @@ package SHCM.SHsuperCM.forge.sleepingbagbed;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -20,14 +21,15 @@ public class SleepingBagBed {
     public static final String MODID = "sleepingbagbed";
 
     @SubscribeEvent
-    public static void interact(PlayerInteractEvent event) {
-        if(!event.getWorld().isRemote && !event.getEntityPlayer().isSneaking() && isBed(event.getItemStack())) {
+    public static void interact(PlayerInteractEvent.RightClickBlock event) {
+        if(!event.getWorld().isRemote && !event.getEntityPlayer().isSneaking() && event.getEntityPlayer().onGround && isBed(event.getItemStack())) {
             event.setCanceled(true);
 
             EntityPlayer player = event.getEntityPlayer();
 
-
-            if(!player.world.isDaytime() && player.world.provider.isSurfaceWorld()) {
+            if(player.world.isDaytime())
+                player.sendStatusMessage(new TextComponentTranslation("tile.bed.noSleep", new Object[0]), true);
+            else if(player.world.provider.isSurfaceWorld()) {
                 player.trySleep(player.getPosition());
                 event.setCancellationResult(EnumActionResult.SUCCESS);
             }
