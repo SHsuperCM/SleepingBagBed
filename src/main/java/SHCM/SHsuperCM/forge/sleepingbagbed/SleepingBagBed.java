@@ -25,21 +25,23 @@ import java.util.Arrays;
 public class SleepingBagBed {
     public static final String MODID = "sleepingbagbed";
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void interact(PlayerInteractEvent.RightClickBlock event) {
-        if(!event.getWorld().isRemote && !event.getEntityPlayer().isSneaking() && event.getEntityPlayer().onGround && isBed(event.getEntityPlayer().getHeldItemMainhand())) {
+        if(!event.getEntityPlayer().isSneaking() && event.getEntityPlayer().onGround && isBed(event.getEntityPlayer().getHeldItemMainhand())) {
             event.setCanceled(true);
+            if(!event.getWorld().isRemote) {
+                EntityPlayer player = event.getEntityPlayer();
 
-            EntityPlayer player = event.getEntityPlayer();
+                if (player.world.isDaytime())
+                    player.sendStatusMessage(new TextComponentTranslation("tile.bed.noSleep", new Object[0]), true);
+                else if (player.world.provider.isSurfaceWorld()) {
+                    player.trySleep(player.getPosition());
+                    event.setCancellationResult(EnumActionResult.SUCCESS);
+                    return;
+                }
 
-            if(player.world.isDaytime())
-                player.sendStatusMessage(new TextComponentTranslation("tile.bed.noSleep", new Object[0]), true);
-            else if(player.world.provider.isSurfaceWorld()) {
-                player.trySleep(player.getPosition());
-                event.setCancellationResult(EnumActionResult.SUCCESS);
             }
-
-            event.setCancellationResult(EnumActionResult.FAIL);
+            event.setCancellationResult(EnumActionResult.PASS);
         }
     }
 
