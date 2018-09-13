@@ -35,8 +35,14 @@ public class SleepingBagBed {
                 if (player.world.isDaytime())
                     player.sendStatusMessage(new TextComponentTranslation("tile.bed.noSleep", new Object[0]), true);
                 else if (player.world.provider.isSurfaceWorld()) {
-                    player.trySleep(player.getPosition());
-                    event.setCancellationResult(EnumActionResult.SUCCESS);
+                    if (player.trySleep(player.getPosition()) != EntityPlayer.SleepResult.OK) {
+                        event.setCancellationResult(EnumActionResult.FAIL);
+                    } else {
+                        if (ModConfig.set_spawnpoint)
+                            player.setSpawnPoint(player.getPosition(),true);
+                        
+                        event.setCancellationResult(EnumActionResult.SUCCESS);
+                    }
                     return;
                 }
 
@@ -86,5 +92,9 @@ public class SleepingBagBed {
         @Config.Name("Bag Items")
         @Config.Comment({"List of modid:item entries that count as sleeping bags and allow you to sleep with","(if Model is set to 2, Anything other than beds would be defaulted to red)"})
         public static String[] bag_items = {"minecraft:bed"};
+
+        @Config.Name("Set Spawnpoint")
+        @Config.Comment("Should sleeping in a Bag set your spawnpoint")
+        public static boolean set_spawnpoint = false;
     }
 }
