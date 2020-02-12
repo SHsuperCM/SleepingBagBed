@@ -57,31 +57,8 @@ public class SleepingBagBed {
             event.setResult(Event.Result.ALLOW);
     }
 
-    private static boolean isBed(ItemStack item) {
+    protected static boolean isBed(ItemStack item) {
         return ModConfig.bag_items.length != 0 && !item.isEmpty() && Arrays.asList(ModConfig.bag_items).contains(item.getItem().getRegistryName().toString());
-    }
-
-
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRender(RenderPlayerEvent.Pre event) {
-        if (event.getEntityPlayer().isPlayerSleeping() && isBed(event.getEntityPlayer().getHeldItemMainhand())) {
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(0.8F, -0.6F, 0F);
-            renderingPlayer = true;
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    private static boolean renderingPlayer = false;
-
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onRender(RenderPlayerEvent.Post event) {
-        if (renderingPlayer) {
-            GlStateManager.popMatrix();
-            renderingPlayer = false;
-        }
     }
 
 
